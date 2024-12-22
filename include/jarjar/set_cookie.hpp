@@ -10,6 +10,7 @@
 
 #include <boost/config.hpp>
 #include <boost/optional/optional.hpp>
+#include <boost/system/result.hpp>
 
 #include <chrono>
 
@@ -46,6 +47,10 @@ bool is_valid_cookie_name(string_view name) noexcept;
 // Cookie values also have restrictions
 bool is_valid_cookie_value(string_view value) noexcept;
 
+//
+// Serialization of the Set-Cookie header
+//
+
 // Creates the value of a Set-Cookie HTTP header.
 // If the cookie's name or value aren't valid (as per is_valid_cookie_name,
 // is_valid_cookie_value), returns an error and writes nothing to output.
@@ -55,6 +60,17 @@ error_code serialize_set_cookie(const cookie& cook, output_string_ref output);
 // Same as above, but results in undefined behavior if the cookie
 // name or value are not valid.
 void serialize_set_cookie_unchecked(const cookie& cook, output_string_ref output);
+
+//
+// Parsing the Set-Cookie header
+//
+// If the Set-Cookie is malformed enough
+// (that is, RFC6265 suggests to ignore the Set-Cookie header completely),
+// returns an error.
+// The parsed cookie::name and cookie::value are NOT validated using
+// is_valid_cookie_name and is_valid_cookie_value, as recommended by RFC6265,
+// to improve interoperability with older systems.
+boost::system::result<cookie> parse_set_cookie(string_view from);
 
 }  // namespace jarjar
 
